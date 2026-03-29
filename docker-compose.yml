@@ -1,0 +1,78 @@
+name: strix-vllm
+
+services:
+  vllm:
+    image: ${COMPOSE_IMAGE_NAME:-strix-vllm:local}
+    container_name: ${CONTAINER_NAME:-strix-vllm}
+    restart: "no"
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VLLM_BASE_IMAGE: ${VLLM_BASE_IMAGE}
+    command:
+      - serve
+      - ${VLLM_SMART_MODEL}
+      - --host
+      - 0.0.0.0
+      - --port
+      - '${SERVER_PORT}'
+      - --tokenizer-mode
+      - mistral
+      - --config-format
+      - mistral
+      - --load-format
+      - auto
+      - --quantization
+      - '${VLLM_QUANTIZATION}'
+      - --download-dir
+      - /models
+      - --max-model-len
+      - '${VLLM_MAX_MODEL_LEN}'
+      - --max-num-batched-tokens
+      - '${VLLM_MAX_NUM_BATCHED_TOKENS}'
+      - --max-num-seqs
+      - '${VLLM_MAX_NUM_SEQS}'
+      - --gpu-memory-utilization
+      - '${VLLM_GPU_MEMORY_UTILIZATION}'
+      - --attention-backend
+      - ${VLLM_ATTENTION_BACKEND}
+      - --tool-call-parser
+      - mistral
+      - --enable-auto-tool-choice
+      - --reasoning-parser
+      - mistral
+      - --speculative_config
+      - '{"model":"${VLLM_DRAFT_MODEL}","num_speculative_tokens":${VLLM_NUM_SPECULATIVE_TOKENS},"method":"eagle","max_model_len":"${VLLM_SPEC_MAX_MODEL_LEN}"}'
+    devices:
+      - /dev/dri:/dev/dri
+      - /dev/kfd:/dev/kfd
+    group_add:
+      - video
+      - render
+    security_opt:
+      - seccomp:unconfined
+    ipc: host
+    cap_add:
+      - SYS_PTRACE
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    environment:
+      HSA_ENABLE_SDMA: '${HSA_ENABLE_SDMA}'
+      HSA_XNACK: '${HSA_XNACK}'
+      ROCR_VISIBLE_DEVICES: '${ROCR_VISIBLE_DEVICES}'
+      HF_HOME: /root/.cache/huggingface
+      HF_HUB_CACHE: /root/.cache/huggingface/hub
+      VLLM_USE_V1: '${VLLM_USE_V1}'
+      VLLM_LOGGING_LEVEL: '${VLLM_LOGGING_LEVEL}'
+      PYTORCH_TUNABLEOP_ENABLED: '${PYTORCH_TUNABLEOP_ENABLED}'
+      PYTORCH_TUNABLEOP_FILENAME: /root/.cache/vllm/tunableop.csv
+      PYTORCH_TUNABLEOP_TUNING: '${PYTORCH_TUNABLEOP_TUNING}'
+    volumes:
+      - ${HF_CACHE_DIR}:/root/.cache/huggingface
+      - ${VLLM_CACHE_DIR}:/root/.cache/vllm
+      - ${MODEL_DIR}:/models
+    ports:
+      - '${SERVER_PORT}:${SERVER_PORT}'
