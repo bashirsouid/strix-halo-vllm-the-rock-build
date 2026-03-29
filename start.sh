@@ -37,6 +37,8 @@ echo "    Smart model: ${VLLM_SMART_MODEL}"
 echo "    Draft model: ${VLLM_DRAFT_MODEL}"
 echo "    Model dir  : ${MODEL_DIR}"
 
+export DOCKER_BUILDKIT=0
+
 # Only pass --build if the local image doesn't exist yet.
 # To force a rebuild: docker rmi strix-vllm-mistral:local
 if docker image inspect "${LOCAL_IMAGE:-strix-vllm-mistral:local}" >/dev/null 2>&1; then
