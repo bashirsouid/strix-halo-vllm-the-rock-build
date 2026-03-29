@@ -37,7 +37,15 @@ echo "    Smart model: ${VLLM_SMART_MODEL}"
 echo "    Draft model: ${VLLM_DRAFT_MODEL}"
 echo "    Model dir  : ${MODEL_DIR}"
 
-docker compose --env-file "${ENV_FILE}" -f "${COMPOSE_FILE}" up -d --build
+# Only pass --build if the local image doesn't exist yet.
+# To force a rebuild: docker rmi strix-vllm-mistral:local
+if docker image inspect "${LOCAL_IMAGE:-strix-vllm-mistral:local}" >/dev/null 2>&1; then
+  echo "    Image      : ${LOCAL_IMAGE:-strix-vllm-mistral:local} found, skipping build"
+  docker compose --env-file "${ENV_FILE}" -f "${COMPOSE_FILE}" up -d
+else
+  echo "    Image      : ${LOCAL_IMAGE:-strix-vllm-mistral:local} not found, building..."
+  docker compose --env-file "${ENV_FILE}" -f "${COMPOSE_FILE}" up -d --build
+fi
 
 READY_URL="http://127.0.0.1:${SERVER_PORT}/v1/models"
 TIMEOUT_SECONDS=720
@@ -67,4 +75,5 @@ echo "✓ vLLM is ready"
 echo "  OpenAI API base : http://127.0.0.1:${SERVER_PORT}/v1"
 echo "  Models endpoint : ${READY_URL}"
 echo ""
-echo "Tip: first launch may spend a long time downloading weights and compiling kernels."
+echo "Tip: first launch will spend time downloading weights and compiling ROCm kernels."
+echo "     Subsequent starts skip the build and load much faster."
