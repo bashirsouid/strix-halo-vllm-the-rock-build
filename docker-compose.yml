@@ -23,8 +23,8 @@ services:
       - mistral
       - --load-format
       - auto
-      - --quantization
-      - '${VLLM_QUANTIZATION}'
+      # - --quantization
+      # - '${VLLM_QUANTIZATION}'
       - --download-dir
       - /models
       - --max-model-len
@@ -42,6 +42,8 @@ services:
       - --enable-auto-tool-choice
       - --reasoning-parser
       - mistral
+      - "--limit-mm-per-prompt"
+      - '{"image": 0}'
       - --speculative_config
       - '{"model":"${VLLM_DRAFT_MODEL}","num_speculative_tokens":${VLLM_NUM_SPECULATIVE_TOKENS},"method":"eagle","max_model_len":"${VLLM_SPEC_MAX_MODEL_LEN}"}'
     devices:
@@ -65,7 +67,6 @@ services:
       HIP_VISIBLE_DEVICES: '${HIP_VISIBLE_DEVICES}'
       HF_HOME: /root/.cache/huggingface
       HF_HUB_CACHE: /root/.cache/huggingface/hub
-      VLLM_USE_V1: '${VLLM_USE_V1}'
       VLLM_LOGGING_LEVEL: '${VLLM_LOGGING_LEVEL}'
       PYTORCH_TUNABLEOP_ENABLED: '${PYTORCH_TUNABLEOP_ENABLED}'
       PYTORCH_TUNABLEOP_FILENAME: /root/.cache/vllm/tunableop.csv
