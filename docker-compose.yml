@@ -23,8 +23,8 @@ services:
       - mistral
       - --load-format
       - auto
-      # - --quantization
-      # - '${VLLM_QUANTIZATION}'
+      - --quantization
+      - '${VLLM_QUANTIZATION}'
       - --download-dir
       - /models
       - --max-model-len
