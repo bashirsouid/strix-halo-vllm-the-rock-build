@@ -1,3 +1,5 @@
+Note: this project is not yet working. Do not try it at home yet.
+
 # Strix Halo — vLLM Mistral Small 4 + Eagle (gfx1151)
 
 This repo runs a **single vLLM server** on **AMD Ryzen AI Max “Strix Halo” (gfx1151)** using:
@@ -77,3 +79,10 @@ Use this to compare different values of `VLLM_NUM_SPEC_TOKENS`, `VLLM_MAX_NUM_SE
 ```
 
 This stops and removes the `strix-vllm-mistral` container.
+
+# TODO
+
+## Find a new quantized version of the Mistral model
+```
+The cyankiwi AWQ quant was made with group size 32. This vLLM ROCm build's only available WNA16 kernels (ConchLinearKernel for AMD, ExllamaLinearKernel) require group size 128 or -1 (per-channel). It's a hard incompatibility
+```
